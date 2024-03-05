@@ -15,6 +15,7 @@ data = {
     'image': encoded_image,
     'prompt': 'an upscaled image',
     #'negative_prompt': 'ugly, deformed, disfigured, poor details, bad anatomy, background',
+    'num_inference_steps': 20,
 }
 
 

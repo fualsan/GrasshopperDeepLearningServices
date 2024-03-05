@@ -8,7 +8,8 @@ data = {
     'prompt': 'sketch portrait of a car speeding on the highway, image contains only one ca and it is blue',
     'negative_prompt': 'ugly, deformed, disfigured, poor details, bad anatomy, background',
     'height': 512,
-    'width': 512
+    'width': 512,
+    #'num_inference_steps': 20,
 }
 
 

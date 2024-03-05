@@ -28,7 +28,8 @@ class Text2ImageRequest(BaseModel):
 	guidance_scale: float = Field(default=7.5, gt=0, description='Guidence scale must be greater than zero')
 	height: int = Field(default=512, gt=0, description='Height must be greater than zero')
 	width: int = Field(default=512, gt=0, description='Width must be greater than zero')
-    
+	num_inference_steps: int = Field(default=50, gt=0, description='Number of inference steps scale must be greater than zero')
+
 
 @app.post('/t2i')
 async def process_image(request: Text2ImageRequest):
@@ -42,7 +43,8 @@ async def process_image(request: Text2ImageRequest):
 		generator=generator, 
 		guidance_scale=request.guidance_scale, 
 		height=request.height, 
-		width=request.height
+		width=request.height,
+		num_inference_steps=request.num_inference_steps
 	).images[0]
 
 	# save image (OPTIONAL)

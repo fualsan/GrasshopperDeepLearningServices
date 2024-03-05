@@ -28,6 +28,7 @@ class UpscaleRequest(BaseModel):
 	negative_prompt: str = Field(default=None) # TODO: max_length ?
 	seed: int = Field(default=1234, gt=0, description='Seed must be greater than zero')
 	guidance_scale: float = Field(default=7.5, gt=0, description='Guidence scale must be greater than zero')
+	num_inference_steps: int = Field(default=50, gt=0, description='Number of inference steps scale must be greater than zero')
 
 
 @app.post('/upscale')
@@ -45,7 +46,8 @@ async def process_image(request: UpscaleRequest):
 		prompt=request.prompt, 
 		negative_prompt=request.negative_prompt, 
 		generator=generator, 
-		guidance_scale=request.guidance_scale, 
+		guidance_scale=request.guidance_scale,
+		num_inference_steps=request.num_inference_steps
 	).images[0]
 
 	# save image (OPTIONAL)
