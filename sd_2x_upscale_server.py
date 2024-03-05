@@ -1,4 +1,4 @@
-from diffusers import StableDiffusionUpscalePipeline
+from diffusers import StableDiffusionLatentUpscalePipeline
 import torch
 
 from fastapi import FastAPI
@@ -13,9 +13,13 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Using device: {device}')
 
 
-pipeline = StableDiffusionUpscalePipeline.from_pretrained(
-	'stabilityai/stable-diffusion-x4-upscaler', torch_dtype=torch.float16, variant='fp16'
+pipeline = StableDiffusionLatentUpscalePipeline.from_pretrained(
+	'stabilityai/sd-x2-latent-upscaler', use_safetensors=True
 ).to(device)
+
+
+pipeline.enable_model_cpu_offload()
+pipeline.enable_xformers_memory_efficient_attention()
 
 
 # uvicorn runs this
@@ -32,7 +36,7 @@ class UpscaleRequest(BaseModel):
 	num_inference_steps: int = Field(default=50, gt=0, description='Number of inference steps scale must be greater than zero')
 
 
-@app.post('/upscale4x')
+@app.post('/upscale2x')
 async def process_image(request: UpscaleRequest):
 
 	generator = torch.Generator(device).manual_seed(request.seed)

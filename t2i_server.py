@@ -25,7 +25,7 @@ class Text2ImageRequest(BaseModel):
 	prompt: str
 	negative_prompt: str = Field(default=None) # TODO: max_length ?
 	seed: int = Field(default=1234, gt=0, description='Seed must be greater than zero')
-	guidance_scale: float = Field(default=7.5, gt=0, description='Guidence scale must be greater than zero')
+	guidance_scale: float = Field(default=7.5, ge=0.0, description='Guidence scale must be greater than or equal to zero')
 	height: int = Field(default=512, gt=0, description='Height must be greater than zero')
 	width: int = Field(default=512, gt=0, description='Width must be greater than zero')
 	num_inference_steps: int = Field(default=50, gt=0, description='Number of inference steps scale must be greater than zero')

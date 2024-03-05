@@ -23,7 +23,11 @@ data = json.dumps(data).encode('utf-8')
 
 
 # send request as JSON to server
-req = request.Request('http://localhost:8000/upscale', data=data, headers={'Content-Type': 'application/json'})
+# 2x upscale
+URL = 'http://localhost:8000/upscale2x'
+# 4x upscale (consumes more VRAM)
+#URL = 'http://localhost:8000/upscale4x'
+req = request.Request(URL, data=data, headers={'Content-Type': 'application/json'})
 response = request.urlopen(req)
 
 
