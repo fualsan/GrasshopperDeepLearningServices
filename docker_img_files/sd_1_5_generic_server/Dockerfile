@@ -23,4 +23,4 @@ RUN pip install -U pip && pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 # Command to run the FastAPI application
-CMD ['python', 'sd_1_5_generic_server.py']
+CMD ["python", "sd_1_5_generic_server.py"]
