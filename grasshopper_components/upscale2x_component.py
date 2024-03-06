@@ -4,23 +4,36 @@ from urllib import request
 
 img_base64_data = 'nothing yet!'
 
+
+def read_and_encode_img(img_url):
+    # encode image for sending over API
+    with open(img_url, 'rb') as image_file:
+        encoded_image = base64.b64encode(image_file.read()).decode('utf-8')
+    return encoded_image
+
+
 def send_request():
+    # Read image data from files
+    IMG_URL = 'C:/Users/hfuat/Documents/rhino_projects/text2image_test/gen_img_t2i.jpg'
+
+    encoded_img = read_and_encode_img(IMG_URL)
+
     # Prepare the data to be sent
     data = {
-        #'prompt': 'sketch portrait of a car speeding on the highway, image contains only one car and it is white',
+        'image': encoded_img,
         'prompt': prompt,
         'negative_prompt': negative_prompt,
         'num_inference_steps': num_inference_steps,
-        'guidance_scale': guidance_scale,
+        'guidance_scale':guidance_scale,
     }
 
     data = json.dumps(data).encode('utf-8')
 
     # send request to server
     # LOCAL
-    URL = 'http://localhost:8000/t2i'
+    URL = 'http://localhost:8000/upscale2x'
     # REMOTE (VPN)
-    #URL = 'http://10.1.7.24:8000/t2i'
+    #URL = 'http://10.1.7.24:8000/upscale2x'
     req = request.Request(URL, data=data, headers={'Content-Type': 'application/json'})
     response = request.urlopen(req)
 
@@ -30,7 +43,7 @@ def send_request():
 
 
     save_path = 'C:/Users/hfuat/Documents/rhino_projects/text2image_test/'
-    with open(save_path+'gen_img_t2i.jpg', 'wb') as image_file:
+    with open(save_path+'gen_img_upscale2x.jpg', 'wb') as image_file:
         image_file.write(base64.b64decode(generated_image_data, validate=True))
 
 
@@ -38,3 +51,5 @@ def send_request():
 
 if send:
     send_request()
+
+print(send)
