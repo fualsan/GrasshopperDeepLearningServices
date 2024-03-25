@@ -8,17 +8,48 @@ import torch
 import numpy as np
 import cv2
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel, Field
 from PIL import Image
 from io import BytesIO
 import base64
 import uvicorn
 import gc
+import logging
 
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Using device: {device}')
+
+
+################# LOGGER ###################
+logger = logging.getLogger('ghdls')
+logger.setLevel(logging.DEBUG)
+
+# print to a log file
+file_handler = logging.handlers.RotatingFileHandler(
+    filename='ghdls.log',
+    encoding='utf-8',
+    maxBytes=32 * 1024 * 1024, # 32 MB
+    backupCount=5,  # Rotate through 5 files
+)
+
+# hour minute, seconds, day, month, year
+log_format = '%H:%M:%S %d-%m-%Y'
+formatter = logging.Formatter('[{asctime}] [{levelname:<8}] {name}: {message}', log_format, style='{')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+
+# print to terminal (console)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+############################################
 
 
 ############## TEXT 2 IMAGE ################
@@ -304,7 +335,7 @@ async def load_model(request: LoadRequest):
 
 
 @app.post('/reset_all')
-async def reset_models():
+async def reset_models(request: Request):
 	global control_img_generator, i2i_pipeline, t2i_pipeline
 
 	if control_img_generator is not None:
@@ -331,7 +362,25 @@ async def reset_models():
 	return {'result': 'all removed from memory!'}
 
 
+@app.middleware('http')
+async def log_request_info(request, call_next):
+	"""
+	request.client.host
+    request.client.port
+    request.method
+    request.url
+    request.url.path
+    request.query_params
+    request.headers
+	"""
+	logger.debug(f'{request.url.path} endpoint received {request.method} request from {request.client.host}:{request.client.port} using agent: {request.headers["user-agent"]}')
+
+	response = await call_next(request)
+	return response
+
+
 if __name__ == '__main__':
+	logger.debug(f'Grasshopper Deep Learning Services (GHDLS) is starting...')
 	# optionally run from terminal: uvicorn t2i_server:app --host 0.0.0.0 --port 8000 --reload
 	# accept every connection (not only local connections)
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+	uvicorn.run(app, host='0.0.0.0', port=8000)
