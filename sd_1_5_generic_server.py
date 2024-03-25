@@ -1,5 +1,10 @@
 from diffusers import AutoPipelineForText2Image
+from diffusers import StableDiffusionControlNetPipeline, ControlNetModel, UniPCMultistepScheduler
+from transformers import pipeline
+
 import torch
+
+import numpy as np
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -13,14 +18,48 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Using device: {device}')
 
 
-pipeline = AutoPipelineForText2Image.from_pretrained(
+############## TEXT 2 IMAGE ################
+t2i_pipeline = AutoPipelineForText2Image.from_pretrained(
 	'runwayml/stable-diffusion-v1-5', torch_dtype=torch.float16, variant='fp16', use_safetensors=True
 ).to(device)
 
 
-pipeline.enable_model_cpu_offload()
+t2i_pipeline.enable_model_cpu_offload()
 # remove following line if xFormers is not installed or you have PyTorch 2.0 or higher installed
-pipeline.enable_xformers_memory_efficient_attention()
+t2i_pipeline.enable_xformers_memory_efficient_attention()
+############################################
+
+
+############## IMAGE 2 IMAGE ###############
+depth_estimator = pipeline('depth-estimation')
+
+def preprocess_image_depth(depth_estimator, image):
+	image = depth_estimator(image)['depth']
+	image = np.array(image)
+	image = image[:, :, None]
+	image = np.concatenate([image, image, image], axis=2)
+	image = Image.fromarray(image)
+	# save image (OPTIONAL)
+	#image.save('/tmp/control_img_controlnet_depth.jpg')
+	return image
+
+controlnet = ControlNetModel.from_pretrained(
+    'lllyasviel/sd-controlnet-depth', 
+    torch_dtype=torch.float16
+)
+
+i2i_pipeline = StableDiffusionControlNetPipeline.from_pretrained(
+    'runwayml/stable-diffusion-v1-5', 
+    controlnet=controlnet, 
+    safety_checker=None, 
+    torch_dtype=torch.float16
+).to(device)
+
+i2i_pipeline.scheduler = UniPCMultistepScheduler.from_config(i2i_pipeline.scheduler.config)
+
+#i2i_pipeline.enable_xformers_memory_efficient_attention()
+i2i_pipeline.enable_model_cpu_offload()
+############################################
 
 
 # uvicorn runs this
@@ -56,7 +95,7 @@ async def process_image(request: Text2ImageRequest):
 	generator = torch.Generator(device).manual_seed(request.seed)
 
 	# TODO: multiple images maybe? 
-	image = pipeline(
+	image = t2i_pipeline(
 		prompt=request.prompt, 
 		negative_prompt=request.negative_prompt, 
 		generator=generator, 
@@ -83,11 +122,13 @@ async def process_image(request: Image2ImageRequest):
 
 	# decode base64 encoded low res image
 	decoded_image = base64.b64decode(request.image, validate=True)
-	decoded_image = Image.open(BytesIO(decoded_image))
+	decoded_image = Image.open(BytesIO(decoded_image))#.convert('RGB')
 
 	# TODO: multiple images maybe? 
-	image = pipeline(
-		image=decoded_image,
+	depth_image = preprocess_image_depth(depth_estimator, decoded_image)
+
+	image = i2i_pipeline(
+		image=depth_image,
 		prompt=request.prompt, 
 		negative_prompt=request.negative_prompt, 
 		generator=generator, 
@@ -97,7 +138,7 @@ async def process_image(request: Image2ImageRequest):
 		width=request.height,
 		num_inference_steps=request.num_inference_steps
 	).images[0]
-
+	
 	# save image (OPTIONAL)
 	#image.save('/tmp/gen_img.jpg')
 
