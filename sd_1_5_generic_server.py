@@ -82,6 +82,7 @@ def load_canny():
 
 	# TODO: take low_threshold, high_threshold from request
 	def preprocess_control_img(control_img_generator, image, low_threshold=100, high_threshold=200):
+		image = np.array(image)
 		image = cv2.Canny(image, low_threshold, high_threshold)
 		image = image[:, :, None]
 		image = np.concatenate([image, image, image], axis=2)
