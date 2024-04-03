@@ -24,6 +24,15 @@ Using the image above as input, **prompt: cyberpunk building with neon lights, n
 ![text to image demo image](./assets/i2i_demo_example_image.jpg)
 
 # Use Locally
+## Rhino Grasshopper Demo 
+* Install Rhino (tested on Rhino 8 but Rhino 7 is also supported)
+* Download **grasshopper_demo.gh** file to your working directory and open it with Rhino. 
+* Right click Text2Img and Image2Image Grasshopper components and select "Open Script Editor". Here, edit the "save_path" for selecting image save folder and "URL" if server is running on remote machine.
+* Edit the prompt (and other inputs) and click "Send Request" to send to the server. Depending on your hardware, response can take a while (GPUs are highly recommended for faster response). 
+
+*NOTE: this demo only works in Rhino 8 (Python 3.x) environment. However, Python 2.x scripts are also provided but not fully tested. Python 2.x scripts end with **_p2.py**.*
+
+
 ## Setup Python Environment
 ### Create new conda environment
 ```bash
