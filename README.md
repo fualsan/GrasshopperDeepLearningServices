@@ -1,9 +1,14 @@
 # Grasshopper Deep Learning Services
 Deep learning models implemented as web services for integration in Rhino Grasshopper
 
-## Demo (Text to Image, Image to Image)
-![demo](assets/demo_video_thumbnail.png)
+## Demo Screenshots
+### Text to Image
+![demo](assets/t2i_demo_video_thumbnail.png)
 
+### Image to Image
+![demo](assets/i2i_demo_video_thumbnail.png)
+
+### Demo Video
 [Click here to download and play the demo video](./assets/demo_video.mp4)
 
 ## Examples
