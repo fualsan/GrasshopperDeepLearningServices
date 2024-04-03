@@ -4,7 +4,7 @@ Deep learning models implemented as web services for integration in Rhino Grassh
 ## Video Demo (Text to Image, Image to Image)
 (Click to play the demo video)
 
-[![Demo Video](./assets/demo_video_thumbnail.png)](./assets/demo_video.mp4)
+<video src="./assets/demo_video.mp4"></video>
 
 ## Examples
 ### Text to Image
