@@ -1,6 +1,24 @@
 # Grasshopper Deep Learning Services
 Deep learning models implemented as web services for integration in Rhino Grasshopper
 
+## Video Demo (Text to Image, Image to Image)
+(Click to play the demo video)
+
+[![Demo Video](./assets/demo_video_thumbnail.png)](./assets/demo_video.mp4)
+
+## Examples
+### Text to Image
+**prompt: a traditional japanese house in a green garden**
+
+![text to image demo image](./assets/t2i_demo_example_image.jpg)
+
+
+### Image to Image
+Using the image above as input, **prompt: cyberpunk building with neon lights, night**
+
+![text to image demo image](./assets/i2i_demo_example_image.jpg)
+
+# Use Locally
 ## Setup Python Environment
 ### Create new conda environment
 ```bash
