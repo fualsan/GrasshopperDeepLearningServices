@@ -32,6 +32,15 @@ Using the image above as input, **prompt: cyberpunk building with neon lights, n
 
 *NOTE: this demo only works in Rhino 8 (Python 3.x) environment. However, Python 2.x scripts are also provided but not fully tested. Python 2.x scripts end with **_p2.py**.*
 
+## NEW: Use Official Repository Docker Image
+
+[Docker hub image page](https://hub.docker.com/repository/docker/fualsan/diffusion-api/general)
+
+### Start docker image as daemon
+
+```bash
+$ docker run -d --gpus all -p 8000:8000 -v diffusion_api_volume:/root/generative_app fualsan/diffusion-api
+```
 
 ## Setup Python Environment
 ### Create new conda environment
@@ -81,7 +90,7 @@ $ sudo docker run --rm --gpus all ubuntu:22.04 nvidia-smi
 ### Builiding the Docker Image
 #### Build Docker image for Stable Diffusion 1.5 Text2Image and Image2Image
 ```bash
-$ cd docker_img_files/sd_1_5_generic_server
+$ cd docker_img_files/sd_1_4_generic_server
 $ docker build --tag t2i_i2i .
 ```
 
