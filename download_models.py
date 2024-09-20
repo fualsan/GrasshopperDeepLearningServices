@@ -30,7 +30,7 @@ def load_depth_default():
 	)
 
 	i2i_pipeline = StableDiffusionControlNetPipeline.from_pretrained(
-		'runwayml/stable-diffusion-v1-5', 
+		'CompVis/stable-diffusion-v1-4', 
 		controlnet=controlnet, 
 		safety_checker=None, 
 		torch_dtype=torch.float16,
@@ -62,7 +62,7 @@ def load_canny():
 	)
 
 	i2i_pipeline = StableDiffusionControlNetPipeline.from_pretrained(
-		'runwayml/stable-diffusion-v1-5', 
+		'CompVis/stable-diffusion-v1-4', 
 		controlnet=controlnet, 
 		safety_checker=None, 
 		torch_dtype=torch.float16,
@@ -89,7 +89,7 @@ def load_softedge():
 	)
 
 	i2i_pipeline = StableDiffusionControlNetPipeline.from_pretrained(
-		'runwayml/stable-diffusion-v1-5', 
+		'CompVis/stable-diffusion-v1-4', 
 		controlnet=controlnet, 
 		torch_dtype=torch.float16
 	)
@@ -114,7 +114,7 @@ def load_scribble():
 	)
 
 	i2i_pipeline = StableDiffusionControlNetPipeline.from_pretrained(
-		'runwayml/stable-diffusion-v1-5', 
+		'CompVis/stable-diffusion-v1-4', 
 		controlnet=controlnet, 
 		torch_dtype=torch.float16
 	)
@@ -123,7 +123,7 @@ def load_scribble():
 
 def load_text2image():
 	t2i_pipeline = AutoPipelineForText2Image.from_pretrained(
-		'runwayml/stable-diffusion-v1-5', torch_dtype=torch.float16, variant='fp16', use_safetensors=True
+		'CompVis/stable-diffusion-v1-4', torch_dtype=torch.float16, variant='fp16', use_safetensors=True
 	)
 
 

@@ -13,7 +13,7 @@ print(f'Using device: {device}')
 
 
 pipeline = AutoPipelineForText2Image.from_pretrained(
-	'runwayml/stable-diffusion-v1-5', torch_dtype=torch.float16, variant='fp16', use_safetensors=True
+	'CompVis/stable-diffusion-v1-4', torch_dtype=torch.float16, variant='fp16', use_safetensors=True
 ).to(device)
 
 
