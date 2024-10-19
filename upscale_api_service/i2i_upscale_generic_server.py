@@ -1,4 +1,4 @@
-from diffusers import StableDiffusionLatentUpscalePipeline
+from diffusers import StableDiffusionLatentUpscalePipeline, StableDiffusionUpscalePipeline
 import torch
 
 from fastapi import FastAPI
@@ -13,13 +13,29 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Using device: {device}')
 
 
-pipeline = StableDiffusionLatentUpscalePipeline.from_pretrained(
-	'stabilityai/sd-x2-latent-upscaler', use_safetensors=True
+pipeline_2x = StableDiffusionLatentUpscalePipeline.from_pretrained(
+	'stabilityai/sd-x2-latent-upscaler', 
+	use_safetensors=True,
 ).to(device)
 
 
-pipeline.enable_model_cpu_offload()
-pipeline.enable_xformers_memory_efficient_attention()
+pipeline_2x.enable_model_cpu_offload()
+pipeline_2x.enable_xformers_memory_efficient_attention()
+
+
+pipeline_4x = StableDiffusionUpscalePipeline.from_pretrained(
+	'stabilityai/stable-diffusion-x4-upscaler', 
+	use_safetensors=True, 
+	torch_dtype=torch.float16, 
+	variant='fp16'
+).to(device)
+
+
+pipeline_2x.enable_model_cpu_offload()
+pipeline_2x.enable_xformers_memory_efficient_attention()
+
+pipeline_4x.enable_model_cpu_offload()
+pipeline_4x.enable_xformers_memory_efficient_attention()
 
 
 # uvicorn runs this
@@ -28,7 +44,7 @@ app = FastAPI()
 
 class UpscaleRequest(BaseModel):
 	image: str # base64 encoded image as string
-	prompt: str
+	prompt: str = Field(default='')
 	negative_prompt: str = Field(default=None) # TODO: max_length ?
 	seed: int = Field(default=1234, gt=0, description='Seed must be greater than zero')
 	# NOTE: guidance_scale is set to 0.0 for pure upscaling
@@ -46,7 +62,36 @@ async def process_image(request: UpscaleRequest):
 	decoded_image = Image.open(BytesIO(decoded_image))
 
 	# TODO: multiple images maybe? 
-	image = pipeline(
+	image = pipeline_2x(
+		image=decoded_image,
+		prompt=request.prompt, 
+		negative_prompt=request.negative_prompt, 
+		generator=generator, 
+		guidance_scale=request.guidance_scale,
+		num_inference_steps=request.num_inference_steps
+	).images[0]
+
+	# save image (OPTIONAL)
+	#image.save('/tmp/gen_img.jpg')
+
+	buffer = BytesIO()
+	image.save(buffer, format='JPEG')
+	generated_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+	return {'generated_image': generated_image}
+
+
+@app.post('/upscale4x')
+async def process_image(request: UpscaleRequest):
+
+	generator = torch.Generator(device).manual_seed(request.seed)
+
+	# decode base64 encoded low res image
+	decoded_image = base64.b64decode(request.image, validate=True)
+	decoded_image = Image.open(BytesIO(decoded_image))
+
+	# TODO: multiple images maybe? 
+	image = pipeline_4x(
 		image=decoded_image,
 		prompt=request.prompt, 
 		negative_prompt=request.negative_prompt, 
@@ -66,6 +111,5 @@ async def process_image(request: UpscaleRequest):
 
 
 if __name__ == '__main__':
-	# optionally run from terminal: uvicorn t2i_server:app --host 0.0.0.0 --port 8000 --reload
 	# accept every connection (not only local connections)
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=9000)

@@ -392,6 +392,5 @@ async def log_request_info(request, call_next):
 
 if __name__ == '__main__':
 	logger.debug(f'Grasshopper Deep Learning Services (GHDLS) is starting...')
-	# optionally run from terminal: uvicorn t2i_server:app --host 0.0.0.0 --port 8000 --reload
 	# accept every connection (not only local connections)
 	uvicorn.run(app, host='0.0.0.0', port=8000)

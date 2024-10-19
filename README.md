@@ -32,14 +32,27 @@ Using the image above as input, **prompt: cyberpunk building with neon lights, n
 
 *NOTE: this demo only works in Rhino 8 (Python 3.x) environment. However, Python 2.x scripts are also provided but not fully tested. Python 2.x scripts end with **_p2.py**.*
 
-## NEW: Use Official Repository Docker Image
+## RECOMMENDED: Use Official Docker Images
 
-[Docker hub image page](https://hub.docker.com/repository/docker/fualsan/diffusion-api/general)
+### Diffusion API
 
-### Start docker image as daemon
+This service exposes two endpoints **/t2i** and **/i2i** for text to image and image to image. For an example, you can check out client code: [t2i_client.py](./t2i_client.py) and [i2i_client.py](./i2i_client.py).
+
+[Diffusion API Docker Hub Image Page](https://hub.docker.com/repository/docker/fualsan/diffusion-api/general)
+
 
 ```bash
 $ docker run -d --gpus all -p 8000:8000 -v diffusion_api_volume:/root/generative_app fualsan/diffusion-api
+```
+
+### Upscale Diffusion API
+
+This service exposes two endpoints **/upscale2x** and **/upscale4x** for 2x and 4x image upscaling. For an example, you can check out client code: [i2i_client.py](./i2i_client.py).
+
+[Upscale Diffusion API Docker Hub Image Page](https://hub.docker.com/repository/docker/fualsan/diffusion-upscale-api/general)
+
+```bash
+$ docker run -d --gpus all -p 9000:9000 -v diffusion_upscale_api_volume:/root/generative_app fualsan/diffusion-upscale-api
 ```
 
 ## Setup Python Environment

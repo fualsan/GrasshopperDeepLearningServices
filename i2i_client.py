@@ -12,13 +12,14 @@ with open(IMG_URL, 'rb') as image_file:
     
 
 # the JSON data to be sent
+# prompts are useful for generic i2i, not necessery in upscaling
 data = {
     'image': encoded_image,
     #'prompt': 'an upscaled image',
-    'prompt': 'a reds truck',
+    'prompt': 'a red truck',
     #'negative_prompt': 'ugly, deformed, disfigured, poor details, bad anatomy, background',
     'num_inference_steps': 50,
-    'strength': 0.1,
+    #'strength': 0.1,
 }
 
 
@@ -27,11 +28,11 @@ data = json.dumps(data).encode('utf-8')
 
 # send request as JSON to server
 # Generic Image2Image
-URL = 'http://localhost:8000/i2i'
+#URL = 'http://localhost:8000/i2i'
 # 2x upscale
-#URL = 'http://localhost:8000/upscale2x'
+URL = 'http://localhost:9000/upscale2x'
 # 4x upscale (consumes more VRAM)
-#URL = 'http://localhost:8000/upscale4x'
+#URL = 'http://localhost:9000/upscale4x'
 req = request.Request(URL, data=data, headers={'Content-Type': 'application/json'})
 response = request.urlopen(req)
 
