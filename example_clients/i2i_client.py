@@ -4,7 +4,7 @@ from urllib import request
 
 # NOTE: first run t2i_client.py to generate folder and images
 
-IMG_URL = './generated_images/gen_img.jpg'
+IMG_URL = '../generated_images/gen_img.jpg'
 
 # encode image for sending over API
 with open(IMG_URL, 'rb') as image_file:
@@ -41,6 +41,6 @@ response_data = json.loads(response.read().decode('utf-8'))
 generated_image_data = response_data['generated_image']
 
 
-with open('./generated_images/gen_img_i2i.jpg', 'wb') as image_file:
+with open('../generated_images/gen_img_i2i.jpg', 'wb') as image_file:
     # decode received base64 encoded image
     image_file.write(base64.b64decode(generated_image_data, validate=True))

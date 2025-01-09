@@ -3,7 +3,7 @@ import json
 from urllib import request
 import os
 
-os.makedirs('./generated_images/', exist_ok=True)
+os.makedirs('../generated_images/', exist_ok=True)
 
 # the JSON data to be sent
 data = {
@@ -27,6 +27,6 @@ response_data = json.loads(response.read().decode('utf-8'))
 generated_image_data = response_data['generated_image']
 
 
-with open('./generated_images/gen_img.jpg', 'wb') as image_file:
+with open('../generated_images/gen_img.jpg', 'wb') as image_file:
     # decode received base64 encoded image
     image_file.write(base64.b64decode(generated_image_data, validate=True))

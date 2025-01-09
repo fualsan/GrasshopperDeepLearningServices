@@ -1,5 +1,6 @@
 # ADDED BY ME
 generated_images/
+*.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

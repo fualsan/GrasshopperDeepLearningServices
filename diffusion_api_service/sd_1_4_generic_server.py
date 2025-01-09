@@ -27,12 +27,12 @@ print(f'Using device: {device}')
 os.makedirs('./generated_images/', exist_ok=True)
 
 ################# LOGGER ###################
-logger = logging.getLogger('ghdls')
+logger = logging.getLogger('sd_1_4_generic_server')
 logger.setLevel(logging.DEBUG)
 
 # print to a log file
 file_handler = logging.handlers.RotatingFileHandler(
-    filename='ghdls.log',
+    filename='sd_1_4_generic_server.log',
     encoding='utf-8',
     maxBytes=32 * 1024 * 1024, # 32 MB
     backupCount=5,  # Rotate through 5 files
@@ -391,6 +391,6 @@ async def log_request_info(request, call_next):
 
 
 if __name__ == '__main__':
-	logger.debug(f'Grasshopper Deep Learning Services (GHDLS) is starting...')
+	logger.debug(f'SD 1.4 Grasshopper Deep Learning Services (GHDLS) is starting...')
 	# accept every connection (not only local connections)
 	uvicorn.run(app, host='0.0.0.0', port=8000)
