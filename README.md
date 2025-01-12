@@ -1,6 +1,17 @@
 # Grasshopper Deep Learning Services
 Deep learning models implemented as web services for integration in Rhino Grasshopper
 
+## NEW: Agentic LLM Integration to Rhino Grasshopper
+
+This repository integrates Rhino Grasshopper with a backend server that connects to an agentic LLM (curretly OpenAI models are supported) to dynamically generate and run scripts based on user inputs. You can also retrive the conversation history or reset the history. See [gh_scripting_agent_server.py](./agentic_api_service/gh_scripting_agent_server.py) for the backend, [gh_scripting_agent_client.py](./example_clients/gh_scripting_agent_client.py) for a standalone client and [gh_scripting_agent_component.py](./grasshopper_python_components/gh_scripting_agent_component.py) for a Rhino Grasshopper Python component.
+
+### API Endpoints
+
+- **POST /generate_script**: Generates a script from a user-defined prompt and runs it.
+- **GET /get_conversation_history**: Retrieves the conversation history (previous prompts and responses).
+- **GET /reset_conversation_history**: Resets the conversation history.
+
+
 ## Demo Screenshots
 ### Text to Image
 ![demo](assets/t2i_demo_video_thumbnail.png)
