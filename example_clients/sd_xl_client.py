@@ -35,8 +35,10 @@ SEND_IMG_URL = '../generated_images/gen_img.jpg'
 #SAVE_IMG_URL = '../generated_images/gen_img.jpg'
 # Image2Image
 #SAVE_IMG_URL = '../generated_images/gen_img_i2i.jpg'
+# Image2Image ControlNet
+SAVE_IMG_URL = '../generated_images/gen_img_i2i_controlnet.jpg'
 # Inpainting
-SAVE_IMG_URL = '../generated_images/gen_img_inpainting.jpg'
+#SAVE_IMG_URL = '../generated_images/gen_img_inpainting.jpg'
 
 
 # encode image for sending over API
@@ -62,6 +64,15 @@ data_i2i = {
     'strength': 0.75,
 }
 
+data_i2i_controlnet = {
+    'image': encoded_image,
+    'prompt': 'A modern house, realistic, aesthetic, 8k',
+    'negative_prompt': 'ugly, deformed, disfigured, poor details, bad anatomy, background',
+    'num_inference_steps': 20,
+    'strength': 0.75,
+    'controlnet_conditioning_scale': 0.5,
+}
+
 data_inpainting = {
     'image': encoded_image,
     'mask': encoded_mask,
@@ -85,15 +96,19 @@ def send_request(url, json_data):
 #URL = 'http://localhost:8000/t2i'
 # Image2Image
 #URL = 'http://localhost:8000/i2i'
+# Image2Image ControlNet
+URL = 'http://localhost:8000/i2i_controlnet'
 # Inpainting
-URL = 'http://localhost:8000/inpainting'
+#URL = 'http://localhost:8000/inpainting'
 
 # Text2Image
 #generated_image_data = send_request(URL, data_t2i)
 # Image2Image
 #generated_image_data = send_request(URL, data_i2i)
+# Image2Image ControlNet
+generated_image_data = send_request(URL, data_i2i_controlnet)
 # Inpainting
-generated_image_data = send_request(URL, data_inpainting)
+#generated_image_data = send_request(URL, data_inpainting)
 
 
 with open(SAVE_IMG_URL, 'wb') as image_file:
@@ -101,5 +116,5 @@ with open(SAVE_IMG_URL, 'wb') as image_file:
     image_file.write(base64.b64decode(generated_image_data, validate=True))
 
 
-inpainting_grid = make_image_grid([Image.open(SEND_IMG_URL), mask_inpainting, Image.open(SAVE_IMG_URL)], rows=1, cols=3)
-inpainting_grid.save('../generated_images/gen_img_inpainting_grid.jpg')
+#inpainting_grid = make_image_grid([Image.open(SEND_IMG_URL), mask_inpainting, Image.open(SAVE_IMG_URL)], rows=1, cols=3)
+#inpainting_grid.save('../generated_images/gen_img_inpainting_grid.jpg')
