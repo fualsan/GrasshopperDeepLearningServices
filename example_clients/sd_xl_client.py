@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 import io
 
 
-def make_mask(size, x1, y1, x2, y2, fill_value=200):
+def make_mask(size, x1, y1, x2, y2, fill_value=255):
     """
     utility function for testing inpainting
 
@@ -20,7 +20,7 @@ def make_mask(size, x1, y1, x2, y2, fill_value=200):
 
 
 x1, y1 =   0, 200
-x2, y2 = 450, 600
+x2, y2 = 650, 800
 
 mask_inpainting = make_mask((1024, 1024), x1, y1, x2, y2)
 pil_to_bytes = io.BytesIO()
@@ -36,9 +36,9 @@ SEND_IMG_URL = '../generated_images/gen_img.jpg'
 # Image2Image
 #SAVE_IMG_URL = '../generated_images/gen_img_i2i.jpg'
 # Image2Image ControlNet
-SAVE_IMG_URL = '../generated_images/gen_img_i2i_controlnet.jpg'
+#SAVE_IMG_URL = '../generated_images/gen_img_i2i_controlnet.jpg'
 # Inpainting
-#SAVE_IMG_URL = '../generated_images/gen_img_inpainting.jpg'
+SAVE_IMG_URL = '../generated_images/gen_img_inpainting.jpg'
 
 
 # encode image for sending over API
@@ -76,7 +76,8 @@ data_i2i_controlnet = {
 data_inpainting = {
     'image': encoded_image,
     'mask': encoded_mask,
-    'prompt': 'A house with shiny windows and red lights',
+    #'prompt': 'A house with shiny windows and red lights',
+    'prompt': 'Red lights shining',
     'negative_prompt': 'ugly, deformed, disfigured, poor details, bad anatomy, background',
     'num_inference_steps': 20,
     'strength': 0.75,
@@ -97,18 +98,18 @@ def send_request(url, json_data):
 # Image2Image
 #URL = 'http://localhost:8000/i2i'
 # Image2Image ControlNet
-URL = 'http://localhost:8000/i2i_controlnet'
+#URL = 'http://localhost:8000/i2i_controlnet'
 # Inpainting
-#URL = 'http://localhost:8000/inpainting'
+URL = 'http://localhost:8000/inpainting'
 
 # Text2Image
 #generated_image_data = send_request(URL, data_t2i)
 # Image2Image
 #generated_image_data = send_request(URL, data_i2i)
 # Image2Image ControlNet
-generated_image_data = send_request(URL, data_i2i_controlnet)
+#generated_image_data = send_request(URL, data_i2i_controlnet)
 # Inpainting
-#generated_image_data = send_request(URL, data_inpainting)
+generated_image_data = send_request(URL, data_inpainting)
 
 
 with open(SAVE_IMG_URL, 'wb') as image_file:
