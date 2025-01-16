@@ -1,9 +1,9 @@
 import requests
 
 
-GENERATE_SCRIPT_URL = 'http://127.0.0.1:10000/generate_script'
-GET_CONVERSATION_HISTORY_URL = 'http://127.0.0.1:10000/get_conversation_history'
-RESET_CONVERSATION_HISTORY_URL = 'http://127.0.0.1:10000/reset_conversation_history'
+GENERATE_SCRIPT_URL = 'http://127.0.0.1:8000/generate_script'
+GET_CONVERSATION_HISTORY_URL = 'http://127.0.0.1:8000/get_conversation_history'
+RESET_CONVERSATION_HISTORY_URL = 'http://127.0.0.1:8000/reset_conversation_history'
 MODEL_NAME = 'gpt-4o'
 TEMPERATURE = 0.5
 
