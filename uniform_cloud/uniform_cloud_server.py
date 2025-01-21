@@ -91,14 +91,26 @@ class DiffusionRequest(BaseModel):
     prompt: str = Field(default='')
     negative_prompt: str = Field(default='ugly, deformed, disfigured, poor details, bad anatomy, background') # TODO: max_length ?
     model: str = Field(default='sd3-medium')
-    seed: int = Field(default=1234, gt=0, description='Seed must be greater than zero')
+    seed: int = Field(default=1234, gt=0, le=4294967294, description='Seed must be greater than zero and below 4294967294')
     # converted to int later
     # (known as cfg_scale in documentation)
+    # NOTE: Point Aware 3D specific also uses this
     guidance_scale: float = Field(default=8.0, ge=0.0, le=10.0, description='Guidence scale must be between 0 and 10')
     # a lower strength value means the generated image is more similar to the initial image
     strength: float = Field(default=0.95, ge=0.0, le=1.0, description='Strength scale must be between 0.0 and 1.0')
     # used in control_style
     fidelity: float = Field(default=0.5, ge=0.0, le=1.0, description='Fidelity scale must be between 0.0 and 1.0')
+    # used in Fast 3D & Point Aware 3D
+    texture_resolution: str = Field(default='1024')
+    # NOTE: DIFFERENT FOR 3D FAST AND POINT AWARE!
+    foreground_ratio: float = Field(default=0.85, ge=0.1, le=2.0, description='Foreground ratio must be between 0.1 and 2.0')
+    remesh: str = Field(default='none')
+    # NOTE: Point Aware 3D specific does not use this
+    # ("-1" means that a limit is not set)
+    vertex_count: int = Field(default=-1, ge=-1, le=20000, description='Vertex count must be between -1 and 20000')
+    # Point Aware 3D specific 
+    target_type: str = Field(default='none')
+    target_count: int = Field(default=1000, ge=100, le=20000, description='Target count must be between 100 and 20000')
     # DEPRACATED!
     height: int = Field(default=1024, gt=0, description='Height must be greater than zero')
     width: int = Field(default=1024, gt=0, description='Width must be greater than zero')
@@ -141,8 +153,32 @@ MODES = (
     'inpainting',
     'control_sketch',
     'control_structure',
-    'control_style'
+    'control_style',
+    '3d_fast',
+    '3d_pointaware'
 )
+
+
+####### USED IN 3D #######
+TEXTURE_RESOLUTIONS = (
+    '512',
+    '1024',
+    '2048',
+)
+
+REMESH_ALGORITHMS = (
+    'none',
+    'quad',
+    'triangle',
+)
+
+# Point Aware 3D
+TARGET_TYPES = (
+    'none',
+    'face',
+    'vertex'
+)
+##########################
 
 
 @app.post('/diffusion')
@@ -168,6 +204,9 @@ async def diffusion_endpoint(request: DiffusionRequest):
     elif 'control' in request.mode.lower():
         # control_sketch, control_structure, control_style
         return control_generation(request)
+    elif '3d' in request.mode.lower():
+        # 3d_fast, 3d_pointaware
+        return three_dimensional_generation(request)
     
     return {'generation_status': 'error: unknown','generated_image': None}
 
@@ -205,7 +244,8 @@ def text2image_generation(request):
     if response.status_code == 200:
         generation_status = 'ok'
     else:
-        generation_status = 'error'
+        generation_status = f'error: {str(response.json())}'
+        logger.debug(generation_status)
         return {'generation_status': generation_status,'generated_image': None}
 
     buffer = BytesIO(response.content)
@@ -253,7 +293,8 @@ def image2image_generation(request):
     if response.status_code == 200:
         generation_status = 'ok'
     else:
-        generation_status = 'error'
+        generation_status = f'error: {str(response.json())}'
+        logger.debug(generation_status)
         return {'generation_status': generation_status,'generated_image': None}
     
     buffer = BytesIO(response.content)
@@ -283,7 +324,8 @@ def upscale_generation(request):
     if response.status_code == 200:
         generation_status = 'ok'
     else:
-        generation_status = 'error'
+        generation_status = f'error: {str(response.json())}'
+        logger.debug(generation_status)
         return {'generation_status': generation_status,'generated_image': None}
 
     buffer = BytesIO(response.content)
@@ -320,7 +362,8 @@ def inpainting_generation(request):
     if response.status_code == 200:
         generation_status = 'ok'
     else:
-        generation_status = 'error'
+        generation_status = f'error: {str(response.json())}'
+        logger.debug(generation_status)
         return {'generation_status': generation_status,'generated_image': None}
 
     buffer = BytesIO(response.content)
@@ -370,7 +413,66 @@ def control_generation(request):
     if response.status_code == 200:
         generation_status = 'ok'
     else:
-        generation_status = 'error'
+        generation_status = f'error: {str(response.json())}'
+        logger.debug(generation_status)
+        return {'generation_status': generation_status,'generated_image': None}
+
+    buffer = BytesIO(response.content)
+    generated_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+	
+    return {'generation_status': generation_status,'generated_image': generated_image}
+
+
+def three_dimensional_generation(request):
+
+    submode = request.mode.lower().split('_')[1]
+
+    if submode == 'fast':
+        URL = 'https://api.stability.ai/v2beta/3d/stable-fast-3d'
+    elif submode == 'pointaware':
+        URL = 'https://api.stability.ai/v2beta/3d/stable-point-aware-3d'
+
+
+    # decode base64 encoded image
+    decoded_image = base64.b64decode(request.image, validate=True)
+    decoded_image = BytesIO(decoded_image)
+
+    _data = {
+        'texture_resolution': request.texture_resolution,
+        'foreground_ratio': request.foreground_ratio,
+        'remesh': request.remesh,
+        'vertex_count': request.vertex_count,
+    }
+
+    if submode == 'pointaware':
+        _data['target_type'] = request.target_type
+        _data['target_count'] = request.target_count
+        _data['guidance_scale'] = request.guidance_scale
+        _data['seed'] = request.seed
+        # ensure the correct range of foreground_ratio for point aware 3D
+        if (request.foreground_ratio < 1.0) or (request.foreground_ratio > 2.0):
+            logger.debug(f'WARNING: value of {_data["foreground_ratio"]} is invalid for point aware 3D, falling back to default value of 1.3')
+            _data['foreground_ratio'] = 1.3
+
+    # ensure the correct range of foreground_ratio for fast 3D
+    if (request.foreground_ratio < 0.1) or (request.foreground_ratio > 1.0):
+        logger.debug(f'WARNING: value of {_data["foreground_ratio"]} is invalid for fast 3D, falling back to default value of 0.85')
+        _data['foreground_ratio'] = 0.85
+
+    response = requests.post(
+        URL,
+        headers={
+            'authorization': f'Bearer {STABILITY_API_KEY}',
+        },
+        files={'image': decoded_image},
+        data=_data,
+    )
+
+    if response.status_code == 200:
+        generation_status = 'ok'
+    else:
+        generation_status = f'error: {str(response.json())}'
+        logger.debug(generation_status)
         return {'generation_status': generation_status,'generated_image': None}
 
     buffer = BytesIO(response.content)

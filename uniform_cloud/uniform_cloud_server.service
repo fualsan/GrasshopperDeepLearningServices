@@ -1,0 +1,17 @@
+[Unit]
+Description=Uniform Cloud Server For Stable Diffusion and Agentic LLMs
+After=network.target
+StartLimitIntervalSec=0
+StartLimitBurst=5
+StartLimitIntervalSec=10
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+User=root
+ExecStart=python3 /root/uniform_cloud/uniform_cloud_server.py
+WorkingDirectory=/root/uniform_cloud
+
+[Install]
+WantedBy=multi-user.target
