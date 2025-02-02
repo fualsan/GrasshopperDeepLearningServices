@@ -14,6 +14,6 @@ export DISABLE_TELEMETRY="YES"
 
 echo "RUNNING THE SD SERVER"
 cd /workspace
-python sd_xl_generic_server_runpod.py
+python sd_xl_generic_server_runpod_controlnet_only.py
 
 echo "ALL DONE"
